@@ -1,0 +1,6 @@
+package: libsunrise-sunset
+Version: 1.0
+Priority: optional
+Architecture: all
+Maintainer:  Matt Mahin (matt.mahin@gmail.com)
+Description: Fetch sunrise and sunset date from sunrise-sunset.org
