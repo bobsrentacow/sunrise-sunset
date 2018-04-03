@@ -30,7 +30,7 @@ typedef enum keywords {
 
 typedef struct sunrise_sunset {
   int day_length;
-  struct tm times[sizeof(date_keywords)/sizeof(date_keywords[0])];
+  time_t times[sizeof(date_keywords)/sizeof(date_keywords[0])];
 } sunrise_sunset_t;
 
 typedef struct ss_options {

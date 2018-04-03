@@ -3,7 +3,7 @@ pwd = $(shell pwd)
 objects = main.o jsmn.o
 
 test: main.c libsunrise-sunset.so
-	gcc -L$(pwd) -Wall -Werror -o test main.c -lsunrise-sunset
+	gcc -L$(pwd) -Wall -Werror -o test main.c -lm -lsunrise-sunset
 libsunrise-sunset.so: sunrise_sunset.o jsmn.o
 	gcc -shared -Wall -o libsunrise-sunset.so sunrise_sunset.o jsmn.o
 sunrise_sunset.o: sunrise_sunset.c jsmn.h

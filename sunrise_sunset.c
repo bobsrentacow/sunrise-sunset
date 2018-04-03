@@ -190,6 +190,7 @@ get_dates(
 {
   int ii;
   int jj;
+  struct tm bdt;
 
   for (ii=0; ii<(ntok-1); ii++) {
     switch (tokens[ii].type) {
@@ -197,11 +198,8 @@ get_dates(
       for (jj=0; jj<sizeof(sun->times)/sizeof(sun->times[0]); jj++) {
         if (!strncmp(date_keywords[jj], &json[tokens[ii].start], tokens[ii].end - tokens[ii].start)) {
           // parse ISO 8601 date/time format
-          char *stop_char = strptime(&json[tokens[ii+1].start], "%FT%k:%M:%S%z", &sun->times[jj]);
-          // UTC to localtime
-          time_t time = timegm(&sun->times[jj]);
-          localtime_r(&time, &sun->times[jj]);
-          //printf("%27s: %s", date_keywords[jj], asctime(&sun->times[jj]));
+          char *stop_char = strptime(&json[tokens[ii+1].start], "%FT%k:%M:%S%z", &bdt);
+          sun->times[jj] = timegm(&bdt);
 
           int unproc_chars = (int)(&json[tokens[ii+1].end] - stop_char);
           if (unproc_chars) {
@@ -215,7 +213,6 @@ get_dates(
         if (!strncmp(day_length_keyword, &json[tokens[ii].start], tokens[ii].end - tokens[ii].start)) {
           char *tail = (char *)&json[tokens[ii+1].end];
           sun->day_length = (int)strtol(&json[tokens[ii+1].start], &tail, 10);
-          //printf("%27s: %d seconds\n", day_length_keyword, sun->day_length);
         }
       }
     default:

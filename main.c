@@ -16,6 +16,7 @@
 #include "jsmn.h"
 #include <time.h>
 #include "sunrise_sunset.h"
+#include "math.h"
 
 static void
 display_dates(
@@ -35,9 +36,19 @@ display_dates(
     "astronomical_twilight_end"
   };
 
+  time_t now;
+  time(&now);
+  int secs_until;
+  char calstr[30];
+
   int ii;
   for (ii=0; ii<sizeof(date_keywords)/sizeof(date_keywords[0]); ii++) {
-    printf("%-27s: %s", date_keywords[ii], asctime(&sun->times[ii]));
+    ctime_r(&sun->times[ii], calstr);
+    calstr[strnlen(calstr, sizeof(calstr)/sizeof(calstr[0]))-1] = '\0';
+
+    secs_until = (int) nearbyint(difftime(now, sun->times[ii]));
+
+    printf("%-27s: %-30s (%5d seconds%s)\n", date_keywords[ii], calstr, abs(secs_until), (secs_until < 0) ? "" : " ago");
   }
   printf("%-27s: %d", day_length_keyword, sun->day_length);
 }
@@ -111,18 +122,16 @@ parse_arguments(
         asprintf(&ss_options->date, "%s", optarg);
         break;
 
-      // TODO: this is broken -- always gets set to 2.0000
-      case 'y':
-        if (!optarg)
-          usage(argv[0]);
-        ss_options->longitude = strtod(ss_options->date, NULL);
-        break;
-
-      // TODO: this is broken -- always gets set to 2.0000
       case 'x':
         if (!optarg)
           usage(argv[0]);
-        ss_options->latitude = strtod(ss_options->date, NULL);
+        ss_options->longitude = strtod(optarg, NULL);
+        break;
+
+      case 'y':
+        if (!optarg)
+          usage(argv[0]);
+        ss_options->latitude = strtod(optarg, NULL);
         break;
 
       case '?':
@@ -141,7 +150,15 @@ main(
 )
 {
   sunrise_sunset_options_t options;
-  options.date = "today";
+
+  char calstr[30];
+  time_t now;
+  struct tm bdt;
+  time(&now);
+  localtime_r(&now, &bdt);
+  strftime(calstr, sizeof(calstr)/sizeof(calstr[0]), "%F", &bdt);
+
+  options.date = calstr;
   options.latitude = 44.907366;
   options.longitude = -92.968065;
 
